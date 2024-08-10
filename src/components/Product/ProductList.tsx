@@ -21,6 +21,7 @@ const ProductList: React.FC = () => {
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [orderId, setOrderId] = useState<number | null>(null)
+	const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 	const { cartItems } = useCart()
 
 	useEffect(() => {
@@ -51,7 +52,7 @@ const ProductList: React.FC = () => {
 		}
 	}
 
-	if (loading) return <div>Loading...</div>
+	if (loading) return <div>We are collecting all the best products for you...</div>
 	if (error) return <div>{error}</div>
 
 	const groupedProducts = products.reduce((acc, product) => {
@@ -61,21 +62,63 @@ const ProductList: React.FC = () => {
 		return acc
 	}, {} as { [key: string]: Product[] })
 
+	const categories = Object.keys(groupedProducts)
+
+	const filteredProducts = selectedCategory ? groupedProducts[selectedCategory] || [] : products
+
 	return (
 		<div>
-			<Link href="/cart">
-				<Button onClick={handleGoToCart}>See my order</Button>
-			</Link>
-			{Object.keys(groupedProducts).map((category) => (
-				<div key={category}>
-					<h2 className="font-bold mb-4">{category}</h2>
+			<div className="flex justify-end mb-4">
+				<Link href="/cart">
+					<Button color="secondary" onClick={handleGoToCart} variant="contained">
+						See my order
+					</Button>
+				</Link>
+			</div>
+
+			<div className="mb-4 flex justify-center">
+				<Button
+					onClick={() => setSelectedCategory(null)}
+					color="secondary"
+					variant={selectedCategory === null ? 'contained' : 'outlined'}
+					className="mr-2"
+				>
+					All
+				</Button>
+				{categories.map((category) => (
+					<Button
+						key={category}
+						onClick={() => setSelectedCategory(category)}
+						color="secondary"
+						variant={selectedCategory === category ? 'contained' : 'outlined'}
+						className="mr-2"
+					>
+						{category}
+					</Button>
+				))}
+			</div>
+
+			{selectedCategory === null ? (
+				categories.map((category) => (
+					<div key={category}>
+						<h2 className="border-b-2 font-bold border-gray-300 mb-4">{category}</h2>
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+							{groupedProducts[category].map((product) => (
+								<ProductCard key={product.id} product={product} />
+							))}
+						</div>
+					</div>
+				))
+			) : (
+				<div>
+					<h2 className="font-bold mb-4">{selectedCategory}</h2>
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-						{groupedProducts[category].map((product) => (
+						{filteredProducts.map((product) => (
 							<ProductCard key={product.id} product={product} />
 						))}
 					</div>
 				</div>
-			))}
+			)}
 		</div>
 	)
 }

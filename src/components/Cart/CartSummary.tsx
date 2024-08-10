@@ -1,6 +1,6 @@
 import React from 'react'
 import { useCart } from '../../context/CartContext'
-import { Box, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 
 const CartSummary: React.FC = () => {
 	const { cartItems } = useCart()
@@ -10,7 +10,7 @@ const CartSummary: React.FC = () => {
 	return (
 		<div className="w-full p-4 border border-gray-300 rounded-lg">
 			<Typography variant="h5" className="mb-4">
-				Cart Summary
+				Order Summary
 			</Typography>
 			{cartItems.map((item) => (
 				<div key={item.id} className="flex justify-between items-center mb-2">

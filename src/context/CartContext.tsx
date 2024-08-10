@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+import React, { createContext, useContext, useState, ReactNode } from 'react'
 
 interface Product {
 	id: number
@@ -22,23 +22,15 @@ interface CartContextType {
 	updateQuantity: (productId: number, quantity: number) => void
 	removeItem: (productId: number) => void
 	clearCart: () => void
+	orderId: number | null
+	setOrderId: React.Dispatch<React.SetStateAction<number | null>>
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [cartItems, setCartItems] = useState<CartItem[]>([])
-
-	useEffect(() => {
-		const storedCartItems = localStorage.getItem('cartItems')
-		if (storedCartItems) {
-			setCartItems(JSON.parse(storedCartItems))
-		}
-	}, [])
-
-	useEffect(() => {
-		localStorage.setItem('cartItems', JSON.stringify(cartItems))
-	}, [cartItems])
+	const [orderId, setOrderId] = useState<number | null>(null)
 
 	const addToCart = (product: Product, quantity: number) => {
 		setCartItems((prevItems) => {
@@ -65,7 +57,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 	}
 
 	return (
-		<CartContext.Provider value={{ cartItems, setCartItems, addToCart, updateQuantity, removeItem, clearCart }}>
+		<CartContext.Provider
+			value={{ cartItems, setCartItems, addToCart, updateQuantity, removeItem, clearCart, orderId, setOrderId }}
+		>
 			{children}
 		</CartContext.Provider>
 	)

@@ -6,10 +6,10 @@ import Link from 'next/link'
 import CartSummary from './CartSummary'
 import EmptyCart from './EmptyCart'
 import { getOrder, purchaseOrder } from '../../utils/api'
+import PaymentSuccess from './PaymentSuccess'
 
 const Cart: React.FC = () => {
-	const { cartItems, setCartItems, clearCart } = useCart()
-	const [orderId, setOrderId] = useState<number | null>(null)
+	const { cartItems, setCartItems, clearCart, orderId, setOrderId } = useCart()
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [purchaseSuccess, setPurchaseSuccess] = useState(false)
@@ -43,7 +43,7 @@ const Cart: React.FC = () => {
 		}
 
 		fetchOrder()
-	}, [setCartItems])
+	}, [setCartItems, setOrderId])
 
 	const groupedItems = cartItems.reduce((groups: any, item) => {
 		const category = item.category.name
@@ -54,34 +54,26 @@ const Cart: React.FC = () => {
 		return groups
 	}, {})
 
-	const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
-
 	const handlePurchase = async () => {
 		if (orderId) {
 			try {
 				await purchaseOrder(orderId)
 				setPurchaseSuccess(true)
-				clearCart()
+				// clearCart()
+				localStorage.removeItem('orderId')
 			} catch (err) {
 				setError('Failed to complete purchase')
 			}
+		} else {
+			setError('Order ID is not defined. Please try again.')
 		}
 	}
 
-	if (loading) return <div>Loading...</div>
+	if (loading) return <div>We are preparing your order, please wait a second...</div>
 	if (error) return <div>{error}</div>
 
 	if (purchaseSuccess) {
-		return (
-			<div className="container mx-auto py-10 px-4">
-				<Typography variant="h4" className="mb-8 text-center md:text-left">
-					Payment Successful
-				</Typography>
-				<div className="w-full md:w-1/4 flex flex-col items-center md:items-center gap-4 mt-12">
-					<CartSummary />
-				</div>
-			</div>
-		)
+		return <PaymentSuccess />
 	}
 
 	return (
@@ -96,7 +88,7 @@ const Cart: React.FC = () => {
 					<div className="w-full md:w-3/4 mb-8 md:mb-0">
 						{Object.keys(groupedItems).map((category) => (
 							<div key={category}>
-								<h6 className="mb-4 border-b-2 border-gray-300">{category}</h6>
+								<h6 className="mb-4 border-b-2 font-bold border-gray-300">{category}</h6>
 								{groupedItems[category].map((item: any) => (
 									<CartItem key={item.id} item={item} orderId={orderId} />
 								))}
@@ -110,6 +102,7 @@ const Cart: React.FC = () => {
 							variant="contained"
 							color="primary"
 							className="w-full md:w-auto"
+							disabled={cartItems.length === 0}
 						>
 							Proceed to Payment
 						</Button>

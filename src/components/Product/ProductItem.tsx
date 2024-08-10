@@ -48,7 +48,7 @@ const ProductCard = ({ product }: Product) => {
 						variant="outlined"
 						size="small"
 					/>
-					<Button onClick={handleAddToCart} variant="text" color="primary">
+					<Button onClick={handleAddToCart} variant="text" color="secondary">
 						Add to cart
 					</Button>
 				</div>
