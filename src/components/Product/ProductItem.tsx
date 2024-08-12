@@ -1,40 +1,36 @@
-import { Button, TextField } from '@mui/material'
+import { Button, Snackbar, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import { useCart } from '../../context/CartContext'
+import { Product } from '~/types/types'
 
-interface Product {
-	product: {
-		id: number
-		name: string
-		description: string
-		image: string
-		price: number
-		category: {
-			name: string
-		}
-	}
-}
-
-const ProductCard = ({ product }: Product) => {
+const ProductCard = ({ product }: { product: Product }) => {
 	const { addToCart } = useCart()
-	const [quantity, setQuantity] = useState(1)
+	const [quantity, setQuantity] = useState<number>(1)
+	const [openToast, setOpenToast] = useState<boolean>(false)
+
 	const handleAddToCart = () => {
 		addToCart(product, quantity)
+		setOpenToast(true)
 	}
 
 	return (
 		<div className="w-full relative group">
-			<div className="max-w-80 max-h-80 relative overflow-hidden rounded-t-2xl">
-				<div>
-					<img className="w-full h-full object-cover" src={product.image} alt={product.name} />
-				</div>
+			<Snackbar
+				open={openToast}
+				onClose={() => setOpenToast(false)}
+				autoHideDuration={2000}
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+				message="Product added to cart"
+			/>
+			<div className="relative overflow-hidden rounded-t-2xl">
+				<img className="w-full h-full object-cover" src={product.image} alt={product.name} />
 			</div>
-			<div className="max-w-80 py-6 flex bg-white flex-col gap-1 border-[1px] border-t-0 px-4 rounded-b-2xl">
+			<div className="py-6 flex flex-col gap-2 bg-white border-[1px] border-t-0 px-4 rounded-b-2xl">
 				<div className="flex items-center justify-between font-titleFont">
 					<h2 className="text-lg text-primeColor font-bold">{product.name}</h2>
 					<p className="text-[#767676] text-[14px] font-bold">${product.price}</p>
 				</div>
-				<div className="h-24 overflow-y-scroll mb-4">
+				<div className="h-24 overflow-y-auto mb-4">
 					<p className="text-[#767676] text-[14px]">{product.description}</p>
 				</div>
 				<div className="flex items-center justify-between">

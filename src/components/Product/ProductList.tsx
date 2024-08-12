@@ -1,59 +1,55 @@
 import React, { useState, useEffect } from 'react'
-import { createOrder, getProducts, patchOrder } from '../../utils/api'
-import ProductCard from './ProductItem'
-import Link from 'next/link'
 import { Button } from '@mui/material'
-import { useCart } from '../../context/CartContext'
+import Link from 'next/link'
+import { useCart } from '~/context/CartContext'
+import { useProduct } from '~/context/ProductContext'
+import ProductCard from '~/components/Product/ProductItem'
+import { Product } from '~/types/types'
+import { createOrder, getOrder } from '~/utils/api'
+import { ClipLoader } from 'react-spinners'
 
-interface Product {
-	id: number
-	name: string
-	description: string
-	image: string
-	price: number
-	category: {
-		name: string
-	}
-}
-
-const ProductList: React.FC = () => {
-	const [products, setProducts] = useState<Product[]>([])
+const ProductList = () => {
+	const { cartItems, setOrderId, orderId } = useCart()
+	const { products, fetchProducts } = useProduct()
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
-	const [orderId, setOrderId] = useState<number | null>(null)
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-	const { cartItems } = useCart()
 
 	useEffect(() => {
-		const loadProducts = async () => {
-			try {
-				const data = await getProducts()
-				setProducts(data)
-			} catch (err) {
-				setError('Failed to load products')
-			} finally {
-				setLoading(false)
-			}
-		}
-
-		loadProducts()
+		fetchProducts(setLoading, setError)
 	}, [])
 
 	const handleGoToCart = async () => {
-		if (orderId === null) {
+		if (orderId === null && cartItems.length > 0) {
 			try {
 				const response = await createOrder(cartItems.map((item) => ({ id: item.id, quantity: item.quantity })))
 				setOrderId(response.id)
 				localStorage.setItem('orderId', response.id.toString())
 			} catch (err) {
 				setError('Failed to create order')
-				return
 			}
 		}
 	}
 
-	if (loading) return <div>We are collecting all the best products for you...</div>
-	if (error) return <div>{error}</div>
+	if (loading)
+		return (
+			<div className="flex flex-col justify-center items-center min-h-screen">
+				<ClipLoader color="#9c27b0" size={50} />
+				<p className="mt-4">We are collecting all the best products for you...</p>
+			</div>
+		)
+
+	if (error)
+		return (
+			<div className="flex flex-col gap-4 min-h-screen mt-8 text-center text-red-500">
+				<p>{error}</p>
+				<Link href="/" className="w-full">
+					<Button variant="outlined" color="secondary" className="w-60% mt-4">
+						Show me all products
+					</Button>
+				</Link>
+			</div>
+		)
 
 	const groupedProducts = products.reduce((acc, product) => {
 		const category = product.category.name
@@ -67,7 +63,7 @@ const ProductList: React.FC = () => {
 	const filteredProducts = selectedCategory ? groupedProducts[selectedCategory] || [] : products
 
 	return (
-		<div>
+		<div className="px-4">
 			<div className="flex justify-end mb-4">
 				<Link href="/cart">
 					<Button color="secondary" onClick={handleGoToCart} variant="contained">
@@ -76,12 +72,11 @@ const ProductList: React.FC = () => {
 				</Link>
 			</div>
 
-			<div className="mb-4 flex justify-center">
+			<div className="mb-4 flex flex-wrap justify-center gap-2">
 				<Button
 					onClick={() => setSelectedCategory(null)}
 					color="secondary"
 					variant={selectedCategory === null ? 'contained' : 'outlined'}
-					className="mr-2"
 				>
 					All
 				</Button>
@@ -91,7 +86,6 @@ const ProductList: React.FC = () => {
 						onClick={() => setSelectedCategory(category)}
 						color="secondary"
 						variant={selectedCategory === category ? 'contained' : 'outlined'}
-						className="mr-2"
 					>
 						{category}
 					</Button>

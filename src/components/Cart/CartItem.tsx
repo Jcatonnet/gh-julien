@@ -5,22 +5,9 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { patchOrder } from '../../utils/api'
+import { CartItemProps } from '~/types/types'
 
-interface CartItemProps {
-	item: {
-		id: number
-		name: string
-		price: number
-		quantity: number
-		image: string
-		category: {
-			name: string
-		}
-	}
-	orderId: number | null
-}
-
-const CartItem: React.FC<CartItemProps> = ({ item, orderId }) => {
+const CartItem = ({ item, orderId }: CartItemProps) => {
 	const { updateQuantity, removeItem } = useCart()
 	const [quantity, setQuantity] = useState(item.quantity)
 
@@ -54,14 +41,14 @@ const CartItem: React.FC<CartItemProps> = ({ item, orderId }) => {
 	}
 
 	return (
-		<div className="flex flex-col md:flex-row items-center gap-4 mb-4 p-4 border border-gray-300 shadow-md w-full md:w-3/5 mx-auto">
+		<div className="flex flex-col lg:flex-row items-center gap-4 mb-4 p-4 border border-gray-300 shadow-md w-full lg:w-3/5 mx-auto">
 			<img src={item.image} alt={item.name} className="w-24 h-24 object-cover" />
 			<div className="flex-grow text-center md:text-left">
 				<Typography variant="h6">{item.name}</Typography>
 				<Typography variant="body1">${item.price.toFixed(2)} per unit</Typography>
 				<div className="flex items-center justify-center md:justify-start mt-2">
 					<IconButton onClick={handleDecrement} color="primary">
-						<RemoveIcon />
+						<RemoveIcon className="text-primary" />
 					</IconButton>
 					<TextField
 						type="number"
@@ -72,7 +59,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, orderId }) => {
 						className="w-16 mx-2"
 					/>
 					<IconButton onClick={handleIncrement} color="primary">
-						<AddIcon />
+						<AddIcon className="text-primary" />
 					</IconButton>
 				</div>
 			</div>

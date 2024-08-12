@@ -8,7 +8,11 @@ const EmptyCart = () => {
 				Your cart is empty at the moment. Browse our shop to find amazing products !
 			</Typography>
 			<Link href="/">
-				<Button className=" w-full md:w-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mt-4">
+				<Button
+					variant="text"
+					color="secondary"
+					className=" w-full md:w-auto bg-blue-500 py-2 px-4 rounded-full mt-4"
+				>
 					Go Shopping
 				</Button>
 			</Link>

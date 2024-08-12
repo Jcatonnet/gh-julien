@@ -2,6 +2,7 @@ import axios from 'axios'
 
 export const getProducts = async () => {
 	const response = await axios.get('/api/products')
+
 	return response.data
 }
 
@@ -20,14 +21,6 @@ export const patchOrder = async (orderId: number, productId: number, quantity: n
 		action: 'update_quantity',
 		productId,
 		quantity,
-	})
-	return response.data
-}
-
-export const removeOrderItem = async (orderId: number, productId: number) => {
-	const response = await axios.patch(`/api/orders/${orderId}`, {
-		action: 'remove_item',
-		productId,
 	})
 	return response.data
 }

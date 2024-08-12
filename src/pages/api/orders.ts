@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
 
-const EXTERNAL_API_URL = 'https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders'
+const EXTERNAL_API_URL = 'https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders?norandom'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
 	if (req.method === 'POST') {

@@ -19,7 +19,9 @@ const PaymentSuccess = () => {
 				<CartSummary />
 			</div>
 			<Link href="/">
-				<Button onClick={handleClick}> Continue Shopping</Button>
+				<Button color="secondary" onClick={handleClick}>
+					Continue Shopping
+				</Button>
 			</Link>
 		</div>
 	)

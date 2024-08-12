@@ -1,19 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react'
-
-interface Product {
-	id: number
-	name: string
-	description: string
-	image: string
-	price: number
-	category: {
-		name: string
-	}
-}
-
-interface CartItem extends Product {
-	quantity: number
-}
+import { fetchAndSetOrder } from '~/services/cartService'
+import { CartItem, Product } from '~/types/types'
+import { createOrder, patchOrder } from '~/utils/api'
 
 interface CartContextType {
 	cartItems: CartItem[]
@@ -24,6 +12,11 @@ interface CartContextType {
 	clearCart: () => void
 	orderId: number | null
 	setOrderId: React.Dispatch<React.SetStateAction<number | null>>
+	fetchOrder: (
+		orderId: number,
+		setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+		setError: React.Dispatch<React.SetStateAction<string | null>>,
+	) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -48,17 +41,44 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		setCartItems((prevItems) => prevItems.map((item) => (item.id === productId ? { ...item, quantity } : item)))
 	}
 
-	const removeItem = (productId: number) => {
+	const removeItem = async (productId: number) => {
 		setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId))
+		if (orderId !== null) {
+			try {
+				await patchOrder(orderId, productId, 0)
+			} catch (err) {
+				console.error('Failed to remove item from order', err)
+			}
+		}
 	}
 
 	const clearCart = () => {
 		setCartItems([])
+		setOrderId(null)
+		localStorage.removeItem('orderId')
+	}
+
+	const fetchOrder = (
+		orderId: number,
+		setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+		setError: React.Dispatch<React.SetStateAction<string | null>>,
+	) => {
+		fetchAndSetOrder(orderId, setCartItems, setLoading, setError)
 	}
 
 	return (
 		<CartContext.Provider
-			value={{ cartItems, setCartItems, addToCart, updateQuantity, removeItem, clearCart, orderId, setOrderId }}
+			value={{
+				cartItems,
+				setCartItems,
+				addToCart,
+				updateQuantity,
+				removeItem,
+				clearCart,
+				orderId,
+				setOrderId,
+				fetchOrder,
+			}}
 		>
 			{children}
 		</CartContext.Provider>
