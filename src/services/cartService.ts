@@ -40,7 +40,7 @@ export const handlePurchaseProcess = async (
 			// clearCart()
 			localStorage.removeItem('orderId')
 		} catch (err) {
-			setError('Failed to complete purchase')
+			setError('Failed to complete purchase, please try again')
 		}
 	} else {
 		setError('Order ID is not defined. Please try again.')
